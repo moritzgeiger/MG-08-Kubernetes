@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: airflow-deployment
   namespace: airflow-app
-  labels:
-    xccelerated.io/moritz-project: airflow-app
 spec:
   replicas: 1
   selector:

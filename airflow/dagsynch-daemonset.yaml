@@ -3,8 +3,6 @@ kind: DaemonSet
 metadata:
   name: dagsynch-daemonset
   namespace: airflow-app
-  labels:
-    xccelerated.io/moritz-project: airflow-app
 spec:
   selector:
     matchLabels:

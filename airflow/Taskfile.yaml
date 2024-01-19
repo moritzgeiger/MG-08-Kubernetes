@@ -21,4 +21,4 @@ tasks:
       - kubectl delete namespace airflow-app
   port-forward:
       - kubectl port-forward service/airflow-service 8090:8090
-      - kubectl port-forward pod/minio-sync 9090 9090
+      - kubectl port-forward pod/minio-ui-service 9090 9090
