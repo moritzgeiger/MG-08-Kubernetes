@@ -13,6 +13,7 @@ tasks:
       - kubectl apply -f airflow-config.yaml
       - kubectl apply -f airflow-secret.yaml
       - kubectl apply -f airflow.yaml
+      - kubectl apply -f dashboard-service-acc.yaml
   get: 
     cmds:
       - kubectl get pods -n airflow-app
@@ -22,3 +23,13 @@ tasks:
   port-forward:
       - kubectl port-forward service/airflow-service 8090:8090
       - kubectl port-forward pod/minio-ui-service 9090 9090
+  get-token: 
+      - kubectl -n kubernetes-dashboard create token admin-user
+  serve:
+      - kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+      - kubectl proxy & &> /dev/null
+      - PROXY_PID=$!
+      - end() {kill -9 $PROXY_PID}
+      - trap end EXIT
+      - open http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+      - tail -f /dev/null
