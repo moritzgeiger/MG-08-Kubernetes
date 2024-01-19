@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airflow-app
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+

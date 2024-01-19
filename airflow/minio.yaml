@@ -1,0 +1,71 @@
+# Deploys a new Namespace for the MinIO Pod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-server
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio-server
+  template:
+    metadata:
+      labels:
+        app: minio-server
+    spec:
+      containers:
+        - name: minio-server
+          image: minio/minio:latest
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /bin/bash
+            - -c
+          args: 
+            - minio server /data --console-address :9090
+          volumeMounts:
+            - mountPath: /data
+              name: localvolume # Corresponds to the `spec.volumes` Persistent Volume
+      volumes:
+        - name: localvolume
+          hostPath: # MinIO generally recommends using locally-attached volumes
+            path: /mnt/disk1/data # Specify a path to a local drive or volume on the Kubernetes worker node
+            type: DirectoryOrCreate # The path to the last directory must exist
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-ui-service
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+spec:
+  selector:
+    app: minio-server
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      name: minio-ui
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-api-service
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+spec:
+  selector:
+    app: minio-server
+  type: ClusterIP
+  clusterIP: 10.97.46.15
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: minio-api-service
+

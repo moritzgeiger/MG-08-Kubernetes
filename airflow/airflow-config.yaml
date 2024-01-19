@@ -1,0 +1,15 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: airflow-config 
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+data: 
+  POSTGRES_DB: postgresdb 
+  POSTGRES_USER: admin 
+  POSTGRES_PASSWORD: test123.
+  sql_alchemy_conn: "postgresql+psycopg2://admin:test123.@postgres-service:5432/public" 
+  AWS_ACCESS_KEY_ID: minioadmin
+  AWS_SECRET_ACCESS_KEY: minioadmin
+  executor: "KubernetesExecutor" 

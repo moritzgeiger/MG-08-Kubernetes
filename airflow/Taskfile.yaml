@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  deploy-kubernetes:
+    cmds:
+      - kubectl apply -f namespaces.yaml
+      - kubectl config set-context --current --namespace=airflow-app
+      - kubectl apply -f dagsynch-daemonset.yaml
+      - kubectl apply -f postgres-config.yaml
+      - kubectl apply -f postgres-storage.yaml
+      - kubectl apply -f postgres.yaml
+      - kubectl apply -f minio.yaml
+      - kubectl apply -f airflow-config.yaml
+      - kubectl apply -f airflow-secret.yaml
+      - kubectl apply -f airflow.yaml
+  get: 
+    cmds:
+      - kubectl get pods -n airflow-app
+  delete-all: 
+    cmds:
+      - kubectl delete namespace airflow-app
+  port-forward:
+      - kubectl port-forward service/airflow-service 8090:8090
+      - kubectl port-forward pod/minio-sync 9090 9090

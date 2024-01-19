@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dagsynch-daemonset
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+spec:
+  selector:
+    matchLabels:
+      name: dagsynch-daemonset
+  template:
+    metadata:
+      labels:
+        name: dagsynch-daemonset
+    spec:
+      containers:
+        - name: airflow-dag-sync
+          image: amazon/aws-cli:latest
+          command: 
+            - "/bin/sh"
+            - "-c"
+          args: 
+          - >
+            echo hey;
+            aws --profile default configure set aws_access_key_id minioadmin;
+            aws --profile default configure set aws_secret_access_key minioadmin;
+            aws --profile default configure set default.s3.signature_version s3v4;
+            echo all configs set;
+            while true; 
+            echo synching...; 
+            do aws --endpoint-url http://minio-api-service:9000 s3 sync s3://dags/dags/ /dags/; 
+            sleep 10; 
+            done
+          volumeMounts: 
+            - name: shared
+              mountPath: /dags/
+          env:
+            - name: AWS_ACCESS_KEY_ID 
+              valueFrom: 
+                configMapKeyRef: 
+                  name: airflow-config 
+                  key: AWS_ACCESS_KEY_ID 
+            - name: AWS_SECRET_ACCESS_KEY 
+              valueFrom: 
+                configMapKeyRef: 
+                  name: airflow-config 
+                  key: AWS_SECRET_ACCESS_KEY
+      terminationGracePeriodSeconds: 30 
+      volumes:
+        - name: shared # 
+          hostPath: 
+            path: /dags
+            type: DirectoryOrCreate

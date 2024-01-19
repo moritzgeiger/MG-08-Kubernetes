@@ -1,0 +1,12 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: postgres-config
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+data: 
+  POSTGRES_DB: public 
+  POSTGRES_USER: admin 
+  POSTGRES_PASSWORD: test123. 
+

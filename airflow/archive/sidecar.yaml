@@ -1,0 +1,44 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: airflow-sidecar
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+spec: 
+  containers:
+    - name: dag-sync
+      image: amazon/aws-cli:latest
+      command: 
+        - "/bin/sh"
+        - "-c"
+      args: 
+      - >
+        echo hey;
+        aws --profile default configure set aws_access_key_id minioadmin;
+        aws --profile default configure set aws_secret_access_key minioadmin;
+        aws --profile default configure set default.s3.signature_version s3v4;
+        echo all configs set;
+        while true; 
+        echo synching...; 
+        do aws --endpoint-url http://127.0.0.1:9000 s3 sync s3://dags/dags/ /dags/; 
+        sleep 10; 
+        done
+      volumeMounts: 
+        - name: shared
+          mountPath: /dags
+      env:
+        - name: AWS_ACCESS_KEY_ID 
+          valueFrom: 
+            configMapKeyRef: 
+              name: sidecar-config 
+              key: AWS_ACCESS_KEY_ID 
+        - name: AWS_SECRET_ACCESS_KEY 
+          valueFrom: 
+            configMapKeyRef: 
+              name: sidecar-config 
+              key: AWS_SECRET_ACCESS_KEY
+  volumes: 
+    - name: shared
+      emptyDir: {}

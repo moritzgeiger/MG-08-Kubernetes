@@ -1,0 +1,10 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: sidecar-config
+  namespace: airflow-app
+  labels:
+    xccelerated.io/moritz-project: airflow-app
+data: 
+  AWS_ACCESS_KEY_ID: minioadmin 
+  AWS_SECRET_ACCESS_KEY: minioadmin
